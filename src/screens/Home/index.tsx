@@ -1,9 +1,11 @@
 import React, {useState} from 'react';
-import {View, Text, StyleSheet, useColorScheme, Pressable} from 'react-native';
+import {View, StyleSheet, useColorScheme, Pressable} from 'react-native';
 import MoodPicker from '../../Components/MoodPicker';
 import Animated, {
   FadeIn,
+  FadeInLeft,
   FadeOut,
+  FadeOutLeft,
   SlideInDown,
   SlideOutDown,
 } from 'react-native-reanimated';
@@ -13,6 +15,10 @@ interface HomeProps {}
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 const Home: React.FC<HomeProps> = ({}) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [currentMood, setCurrentMood] = useState({
+    mood: '😄',
+    description: 'Joyful contentment',
+  });
   const isDarkMode = useColorScheme() === 'dark';
 
   const backgroundStyle = {
@@ -28,24 +34,52 @@ const Home: React.FC<HomeProps> = ({}) => {
   const toggleMood = () => {
     setIsOpen(!isOpen);
   };
+  const onPickMood = (selectedMood: {mood: string; description: string}) => {
+    setCurrentMood({
+      description: selectedMood?.description,
+      mood: selectedMood?.mood,
+    });
+    setIsOpen(!isOpen);
+  };
   return (
     <View style={[styles.container, backgroundStyle]}>
-      <View style={[styles.content]}>
-        <Text style={[styles.text, textStyle]}>Hi, Anas</Text>
+      <Animated.View
+        entering={FadeIn.delay(250)}
+        exiting={FadeOut.delay(250)}
+        style={[styles.content]}>
+        <Animated.Text
+          entering={FadeInLeft.delay(400)}
+          exiting={FadeOutLeft.delay(400)}
+          style={[styles.text, textStyle]}>
+          Hi, Anas
+        </Animated.Text>
         <AnimatedPressable
           onPress={toggleMood}
           style={[styles.moodBox, boxStyle]}>
           <View>
-            <Text style={[styles.text, textStyle, {fontWeight: '800'}]}>
+            <Animated.Text
+              entering={FadeInLeft.delay(400)}
+              exiting={FadeOutLeft.delay(400)}
+              style={[styles.text, textStyle, {fontWeight: '800'}]}>
               Mood
-            </Text>
-            <Text style={[styles.text, textStyle]}>Good</Text>
+            </Animated.Text>
+            <Animated.Text
+              entering={FadeInLeft.delay(400)}
+              exiting={FadeOutLeft.delay(400)}
+              style={[styles.text, textStyle]}>
+              {currentMood?.description}
+            </Animated.Text>
           </View>
           <View style={styles.smileFaceBox}>
-            <Text style={[styles.text, styles.smileFace]}>😃</Text>
+            <Animated.Text
+              entering={FadeIn.delay(400)}
+              exiting={FadeOut.delay(400)}
+              style={[styles.text, styles.smileFace]}>
+              {currentMood?.mood}
+            </Animated.Text>
           </View>
         </AnimatedPressable>
-      </View>
+      </Animated.View>
       {/* mood picker */}
       {isOpen && (
         <>
@@ -53,7 +87,7 @@ const Home: React.FC<HomeProps> = ({}) => {
             style={styles.sheet}
             entering={SlideInDown.springify().damping(15)}
             exiting={SlideOutDown.delay(200)}>
-            <MoodPicker onPickMood={() => {}} />
+            <MoodPicker onPickMood={onPickMood} />
           </Animated.View>
           <AnimatedPressable
             entering={FadeIn}
